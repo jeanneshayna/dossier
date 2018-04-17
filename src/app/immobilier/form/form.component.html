@@ -1,0 +1,17 @@
+<form style="text-align: center;" #form="ngForm">
+    <mat-form-field>
+        <mat-select name="type" placeholder="Choisir un type" (change)="getType(form.value.typebien, form.value.quartier)" ngModel>
+            <mat-option *ngFor="let type of Types" [value]="typebien.id">
+                {{ type.nom_type_bien }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+        <mat-select name="localite" placeholder="Choisir une localite" (change)="getLocalite(form.value.typebien, form.value.quartier)" ngModel>
+            <mat-option *ngFor="let quartier of Quartier" [value]="quartier.id">
+                {{ quartier.nom_quartier }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <button mat-button type="submit">Rechercher</button>
+</form>

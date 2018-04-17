@@ -1,0 +1,23 @@
+<div class="card">
+    <span style="color:black ">{{ bien.nom_bien}} </span>
+    <div class="card-image waves-effect waves-block waves-light">
+        <img id="image" src="data:image/jpg;base64,{{bien.image[0].image}}" style="width:250px;height:130px">
+    </div>
+    <div class="card-content">
+        <div *ngIf="!bien.etat "></div>
+        <span class="card-title activator grey-text text-darken-2" (click)="display(bien)">Détails<i class=" material-icons right ">more_vert</i></span>
+
+
+    </div>
+    <div class="card-reveal">
+        <span class="card-title grey-text text-darken-2">
+             <div *ngIf="bien.etat ">
+            <p> Prix: {{bien.prix_location}}</p>
+            <p>Description:{{bien.description}}</p>
+            <p> Quartier: {{bien.quartier.nom_quartier}}</p>
+            <p> Type: {{bien.type_bien.nom_type_bien}}</p>
+<a  routerLink="/reserver/{{bien.id}}"class="btn waves-effect waves-light"(click)="display(bien)"  type="submit" name="action">Reserver</a>
+        </div>
+        </span>
+    </div>
+</div>

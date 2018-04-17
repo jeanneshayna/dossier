@@ -1,0 +1,41 @@
+<div>
+    <mat-form-field>
+        <mat-select placeholder="Localite">
+            <mat-option *ngFor="let bien of biens" [value]="bien.value">
+                {{ food.viewValue }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+
+    <mat-form-field>
+        <mat-select placeholder="Type De Bien">
+            <mat-option *ngFor="let bien of biens" [value]="bien.value">
+                {{ food.viewValue }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-select placeholder="Prix de Location">
+            <mat-option *ngFor="let bien of biens" [value]="bien.value">
+                {{ food.viewValue }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <mat-accordion displayMode="default" [multi]="true" [hideToggle]="false">
+        <mat-expansion-panel [hideToggle]="false">
+            <mat-expansion-panel-header>Options</mat-expansion-panel-header>
+            Disponibilités
+            <br>
+            <mat-checkbox [(ngModel)]="modelName" value="meuble" color="primary">Meuble</mat-checkbox>
+            <mat-checkbox [(ngModel)]="modelName" value="meuble" color="primary">Balcon</mat-checkbox>
+            <mat-checkbox [(ngModel)]="modelName" value="meuble" color="primary">Parking</mat-checkbox>
+        </mat-expansion-panel>
+    </mat-accordion>
+
+    <button mat-button color="primary">Rechercher</button>
+
+
+</div>

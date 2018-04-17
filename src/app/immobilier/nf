@@ -1,0 +1,338 @@
+
+<form style="text-align: center;" #form="ngForm">
+    <mat-form-field>
+        <mat-select name="type" placeholder="Choisir un type" (change)="getType(form.value.type, form.value.localite)" ngModel>
+            <mat-option *ngFor="let type of Types" [value]="type.id">
+                {{ type.libelle }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+        <mat-select name="localite" placeholder="Choisir une localite" (change)="getLocalite(form.value.type, form.value.localite)" ngModel>
+            <mat-option *ngFor="let localite of Localite" [value]="localite.id">
+                {{ localite.libelle }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <button mat-button type="submit">Rechercher</button>
+</form>
+
+
+api
+<?php
+namespace AppBundle\Controller;
+
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use FOS\RestBundle\Controller\Annotations as Rest;
+use FOS\RestBundle\Controller\FOSRestController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use FOS\RestBundle\View\View;
+use AppBundle\Entity\User;
+
+
+class BienController extends FOSRestController
+{
+    //RECUPERATION DES BIENS
+
+    /**
+     * @Rest\Get("/bien/")
+     */
+    public function getAction()
+    {
+      $restresult = $this->getDoctrine()->getRepository('AppBundle:Bien')->findAll();
+
+      foreach ($restresult as $key => $value) {
+        foreach ($value->getImages() as $key1 => $images) {
+            $images->setImage(base64_encode(stream_get_contents($images->getImage())));
+        }
+    }
+        if ($restresult === null) {
+          return new View("there are no users exist", Response::HTTP_NOT_FOUND);
+     }
+        return $restresult;
+    }
+
+    //RECUPERATION DES BIENS PAR IDENTIFIANT (ID)
+
+    /**
+     * @Rest\Get("/bien/{id}")
+     */
+    public function idAction($id)
+    {
+    $singleresult = $this->getDoctrine()->getRepository('AppBundle:Bien')->find($id);
+    if ($singleresult === null) {
+    return new View("user not found", Response::HTTP_NOT_FOUND);
+    }
+
+      foreach ($singleresult->getImages() as $key1 => $images) {
+          $images->setImage(base64_encode(stream_get_contents($images->getImage())));
+      }
+    return $singleresult;
+    }
+
+    //ENREGISTREMENT DE BIENS
+
+    /**
+     * @Rest\Post("/bien/")
+     */
+    public function postAction(Request $request)
+    {
+    $data = new Bien;
+      $localte_id = $request->get('localite_id');
+      $type_id = $request->get('type_id');
+      $bien_id = $request->get('bien_id');
+      $proprietaire_id = $request->get('proprietaire_id');
+      $nomBien = $request->get('nomBien');
+      $etat = $request->get('etat');
+      $prixLocation = $request->get('prixLocation');
+      $description = $request->get('description');
+    if(empty($localte_id) || empty($type_id) || empty($bien_id) || empty($proprietaire_id) || empty($nomBien) || empty($etat) || empty($prixLocation) || empty($description))
+    {
+    return new View("Veuillez remplir tous les champs", Response::HTTP_NOT_ACCEPTABLE);
+    }
+    $data->setlocalite_id($localte_id);
+      $data->settype_id($type_id);
+      $data->setbien_id($bien_id);
+      $data->setproprietaire_id($proprietaire_id);
+      $data->setnomBien($nomBien);
+      $data->setetat($etat);
+      $data->setprixLocation($prixLocation);
+      $data->setdescription($description);
+    $em = $this->getDoctrine()->getManager();
+    $em->persist($data);
+    $em->flush();
+    return new View("Bien ajoute avec succes  ", Response::HTTP_OK);
+    }
+
+    //MISE A JOUR DES BIEN
+
+    /**
+     * @Rest\Put("/bien/{id}")
+     */
+    public function updateAction($id,Request $request)
+    {
+    $data = new Bien;
+      $localte_id = $request->get('localite_id');
+      $type_id = $request->get('type_id');
+      $bien_id = $request->get('bien_id');
+      $proprietaire_id = $request->get('proprietaire_id');
+      $nomBien = $request->get('nomBien');
+      $etat = $request->get('etat');
+      $prixLocation = $request->get('prixLocation');
+      $description = $request->get('description');
+    $sn = $this->getDoctrine()->getManager();
+    $bien = $this->getDoctrine()->getRepository('AppBundle:Bien')->find($id);
+    if (empty($bien)) {
+    return new View("Bien non trouve", Response::HTTP_NOT_FOUND);
+    }
+    elseif(!empty($name) && !empty($role)){
+      $bien->setlocalite_id($localte_id);
+      $bien->settype_id($type_id);
+      $bien->setbien_id($bien_id);
+      $bien->setproprietaire_id($proprietaire_id);
+      $bien->setnomBien($nomBien);
+      $bien->setetat($etat);
+      $bien->setprixLocation($prixLocation);
+      $bien->setdescription($description);
+    $sn->flush();
+    return new View("Bien mise a jour avec succes", Response::HTTP_OK);
+    }
+    elseif(empty($nomBien) && !empty($etat)){
+    $bien->setRole($etat);
+    $sn->flush();
+    return new View("etat mise a jour avec succes", Response::HTTP_OK);
+    }
+    elseif(!empty($nomBien) && empty($etat)){
+    $user->setName($nomBien);
+    $sn->flush();
+    return new View("Nom du bien mise a jour avec succes", Response::HTTP_OK);
+    }
+    else return new View("le nom du bien ou l'etat ne peut pas etre vide", Response::HTTP_NOT_ACCEPTABLE);
+    }
+
+    //SUPRESSION DES BIENS
+
+    /**
+     * @Rest\Delete("/user/{id}")
+     */
+    public function deleteAction($id)
+    {
+    $data = new Bien;
+    $sn = $this->getDoctrine()->getManager();
+    $bien = $this->getDoctrine()->getRepository('AppBundle:Bien')->find($id);
+    if (empty($bien)) {
+    return new View("bien non trouve", Response::HTTP_NOT_FOUND);
+    }
+    else {
+    $sn->remove($bien);
+    $sn->flush();
+    }
+    return new View("bien supprime avec succes", Response::HTTP_OK);
+    }
+
+    /**
+     * @Rest\Post("/addreservation/{idbien}")
+     *
+     * @return array
+     */
+    public function addReservationAction(Request $request, $idbien){
+      $em = $this->getDoctrine();
+
+      $bien = $em->getRepository(Bien::class)->find($idBien);
+      $data = $request->getContent();
+      $client = $this->get('jms_serializer')->deserialize($data,"App\Entity\Client", 'json');
+      $em->getManager()->persist($client);
+
+      if (empty($client || !$bien)){
+        return new JsonResponse($response, Response::HTTP_BAD_REQUEST);
+      }
+      $reservation = new Reservation();
+      $reservation->setBien($bien)
+      ->setClient($client)
+      ->setEtat(1)
+      ->setDatareservation(new \DateTime());
+
+      $response = array(
+        'code' => 0,
+        'message' => 'success',
+        'error' => null,
+        'result' => null,
+      );
+      return new JsonResponse($response, Response::HTTP_CREATED);
+
+    }
+
+
+    //RECUPERATION DES TYPES DE BIENS
+
+    /**
+     * @Rest\Get("/typebien/")
+     */
+    public function gettypedebienAction()
+    {
+      $restresult = $this->getDoctrine()->getRepository('AppBundle:TypeBien')->findAll();
+
+      // foreach ($restresult as $key => $value) {
+      //   foreach ($value->getImages() as $key1 => $images) {
+      //       $images->setImage(base64_encode(stream_get_contents($images->getImage())));
+      //   }
+    
+        if ($restresult === null) {
+          return new View("there are no users exist", Response::HTTP_NOT_FOUND);
+     }
+        return $restresult;
+    }
+
+
+    //RECUPERATION DE LA LOCALITE
+
+    /**
+     * @Rest\Get("/localite/")
+     */
+    public function getlocaliteAction()
+    {
+      $restresult = $this->getDoctrine()->getRepository('AppBundle:Localite')->findAll();
+
+      // foreach ($restresult as $key => $value) {
+      //   foreach ($value->getImages() as $key1 => $images) {
+      //       $images->setImage(base64_encode(stream_get_contents($images->getImage())));
+      //   }
+    
+        if ($restresult === null) {
+          return new View("there are no users exist", Response::HTTP_NOT_FOUND);
+     }
+        return $restresult;
+    }
+
+
+    /**
+     *
+     * @Rest\Post("/recherche/")
+     *
+     */
+    public function rechercheAction(Request $request)
+    {
+        $repository = $this->getDoctrine()->getRepository('AppBundle:Bien');
+        $biens = $repository->search($request->get("localite"), $request->get("type"));
+
+        if (empty($biens)) {
+            $reponse = array(
+                'code' => 1,
+                'Message' => 'Pas de resultat',
+                'error' => null,
+                'result' => null,
+            );
+
+            return new JsonResponse($reponse, Response::HTTP_NOT_FOUND);
+        }
+
+}
+}import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {MatButtonModule, MatCheckboxModule,MatToolbarModule} from '@angular/material';
+import { HttpClientModule } from '@angular/common/http';
+import { ImmobilierComponent } from './immobilier/immobilier.component';
+import { BienservicesService } from './service/bienservice.service';
+import {CatologueComponent } from './immobilier/catologue/catologue.component';
+import {MatSelectModule} from '@angular/material/select';
+import {NgxPaginationModule} from 'ngx-pagination'; // <-- import the module
+import {FormsModule} from '@angular/forms';
+import {MatCardModule} from '@angular/material/card';
+
+
+
+
+
+import { AppComponent } from './app.component';
+import { HeaderComponent } from './immobilier/header/header.component';
+import { ReservationComponent } from './immobilier/reservation/reservation.component';
+import { RechercheComponent } from './immobilier/recherche/recherche.component';
+import { FooterComponent } from './immobilier/footer/footer.component';
+import { RouterModule, Routes } from '@angular/router';
+import { DetailsBienComponent } from './details-bien/details-bien.component';
+import { PaginationComponent } from './pagination/pagination.component';
+import {MatTabsModule} from '@angular/material/tabs';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    HeaderComponent,
+    ReservationComponent,
+    RechercheComponent,
+    FooterComponent,
+    CatologueComponent,
+    ImmobilierComponent,
+    DetailsBienComponent,
+    PaginationComponent,
+    
+  ],
+  imports: [
+    BrowserModule,
+    BrowserAnimationsModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatToolbarModule,
+    HttpClientModule,
+    FormsModule,
+    MatTabsModule,
+    NgxPaginationModule,
+    MatCardModule,
+    RouterModule.forRoot([{
+      path: '',
+      component: ImmobilierComponent,
+     
+   },
+
+      {
+         path: 'details-bien/:id',
+         component: DetailsBienComponent
+      }
+   ])
+  ],
+  providers:  [BienservicesService],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }

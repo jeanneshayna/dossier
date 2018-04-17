@@ -1,0 +1,10 @@
+<div *ngIf="bien">
+    <h2>{{ bien.nom_bien }} Details</h2>
+    <div><span>id: </span>{{bien.id}}</div>
+    <div>
+        <label>Nom:
+      <input [(ngModel)]="bien.nom_bien" placeholder="Nom"/>
+    </label>
+    </div>
+    <button (click)="goBack()">Retour</button>
+</div>

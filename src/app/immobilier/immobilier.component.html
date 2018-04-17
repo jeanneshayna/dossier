@@ -1,0 +1,18 @@
+<app-nav></app-nav>
+<div class="container">
+
+
+    <app-recherche></app-recherche>
+
+    <div class="row" style="display:flex;flex-wrap:wrap">
+
+
+        <div *ngFor="let Bien of biens | paginate: { itemsPerPage: 6, currentPage: p  }">
+            <app-catalogue [bien]="Bien"></app-catalogue>
+        </div>
+
+    </div>
+    <pagination-controls (pageChange)="p = $event"></pagination-controls>
+
+</div>
+<app-footer></app-footer>
